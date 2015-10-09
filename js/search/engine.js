@@ -478,7 +478,7 @@ const Engine = Lang.Class({
     },
 
     _get_xapian_query_uri: function (query_obj) {
-        let host_uri = "http://" + this.host;
+        let host_uri = 'http://' + this.host;
         let uri = new Soup.URI(host_uri);
         uri.set_port(this.port);
         uri.set_path('/query');
@@ -508,7 +508,7 @@ const Engine = Lang.Class({
             uri_query_args[property] !== null &&
             uri_query_args[property] !== '')
         .map((property) =>
-            stringify_and_encode(property) + "=" +
+            stringify_and_encode(property) + '=' +
             stringify_and_encode(uri_query_args[property]))
         .join('&');
     },
