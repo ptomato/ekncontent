@@ -219,9 +219,6 @@ const QueryObject = Lang.Class({
         this.parent(props);
     },
 
-    // Limits the length of the search query the user enters.
-    MAX_TERM_LENGTH: 245,
-
     _sanitize_query: function (query) {
         // Remove excess white space
         query = query.split(_WHITESPACE_REGEX).join(' ').trim();
@@ -247,29 +244,7 @@ const QueryObject = Lang.Class({
     },
 
     _get_terms_from_string: function (query) {
-        let truncate_bytes = (term) => {
-            let new_arr = [];
-            let arr = ByteArray.fromString(term);
-            // Create a new byte array by copying over characters from the term
-            // up to the max term length
-            for (let i = 0; i < Math.min(arr.length, this.MAX_TERM_LENGTH); i++) {
-                new_arr[i] = arr[i];
-            }
-
-            // Try to create a string out of this truncated byte array. If
-            // we get an error (because we have chopped off a byte in the
-            // middle of a unicode character) try chopping off more until we
-            // get to complete character sequence.
-            while (new_arr.length > 0) {
-                try {
-                    return ByteArray.fromArray(new_arr).toString();
-                } catch (err) {
-                    new_arr.pop();
-                }
-            }
-            return '';
-        }
-        return query.split(_TERM_DELIMITER_REGEX).map(truncate_bytes);
+        return query.split(_TERM_DELIMITER_REGEX);
     },
 
     _query_clause: function () {
