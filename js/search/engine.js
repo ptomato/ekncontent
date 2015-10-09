@@ -22,6 +22,9 @@ const Utils = imports.search.utils;
  */
 const HOME_PAGE_TAG = 'EknHomePageTag';
 
+const _XB_QUERY_ENDPOINT = '/query';
+const _XB_FIX_ENDPOINT = '/fix';
+
 /**
  * Class: Engine
  *
@@ -466,7 +469,7 @@ const Engine = Lang.Class({
         let host_uri = 'http://' + this.host;
         let uri = new Soup.URI(host_uri);
         uri.set_port(this.port);
-        uri.set_path('/fix');
+        uri.set_path(_XB_FIX_ENDPOINT);
 
         let uri_query_args = {
             path: GLib.build_filenamev([this._content_path_from_domain(query_obj.domain), this._DB_DIR]),
@@ -481,7 +484,7 @@ const Engine = Lang.Class({
         let host_uri = 'http://' + this.host;
         let uri = new Soup.URI(host_uri);
         uri.set_port(this.port);
-        uri.set_path('/query');
+        uri.set_path(_XB_QUERY_ENDPOINT);
 
         let uri_query_args = {
             collapse: query_obj.get_collapse_value(),
