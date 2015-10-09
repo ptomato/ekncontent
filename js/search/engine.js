@@ -25,6 +25,9 @@ const HOME_PAGE_TAG = 'EknHomePageTag';
 const _XB_QUERY_ENDPOINT = '/query';
 const _XB_FIX_ENDPOINT = '/fix';
 
+const _XB_QUERY_ENDPOINT = '/query';
+const _XB_FIX_ENDPOINT = '/fix';
+
 /**
  * Class: Engine
  *
