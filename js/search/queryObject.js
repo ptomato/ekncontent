@@ -194,7 +194,7 @@ const QueryObject = Lang.Class({
         'order': GObject.ParamSpec.uint('order', 'Order',
             'What order to put results in',
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
-            0, Object.keys(QueryObjectOrder).length, QueryObjectOrder.ASCENDING),
+            0, Object.keys(QueryObjectOrder).length - 1, QueryObjectOrder.ASCENDING),
         /**
          * Property: tag-match
          *
@@ -205,7 +205,7 @@ const QueryObject = Lang.Class({
         'tag-match': GObject.ParamSpec.uint('tag-match', 'Tag Match',
             'How to match tags in the query',
             GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT_ONLY,
-            0, Object.keys(QueryObjectTagMatch).length, QueryObjectTagMatch.ANY),
+            0, Object.keys(QueryObjectTagMatch).length - 1, QueryObjectTagMatch.ANY),
     },
 
     _init: function (props={}) {
