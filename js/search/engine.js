@@ -241,9 +241,7 @@ const Engine = Lang.Class({
             if (query_obj.domain === '')
                 query_obj = QueryObject.QueryObject.new_from_object(query_obj, { domain: this.default_domain });
 
-            let shard_file = this._shard_file_from_domain(query_obj.domain);
-            shard_file.init_async(0, null, (shard_file, result) => {
-                shard_file.init_finish(result);
+            this._load_domain(query_obj.domain, () => {
                 let do_query = (query_obj) => {
                     let query_req_uri = this._get_xapian_query_uri(query_obj);
                     this._send_json_ld_request(query_req_uri, cancellable, task.catch_callback_errors((engine, json_task) => {
@@ -400,6 +398,18 @@ const Engine = Lang.Class({
         this._runtime_objects.set(id, model);
     },
 
+    _load_domain: function (domain, callback) {
+        let shard_file = this._shard_file_from_domain(domain);
+        if (shard_file) {
+            shard_file.init_async(0, null, (shard_file, result) => {
+                shard_file.init_finish(result);
+                callback();
+            });
+        } else {
+            callback();
+        }
+    },
+
     /**
      * Method: preload_domain
      *
@@ -408,12 +418,7 @@ const Engine = Lang.Class({
      * quicker.
      */
     preload_domain: function (domain) {
-        if (this._ekn_version_from_domain(domain) < 2)
-            return;
-        let shard_file = this._shard_file_from_domain(domain);
-        shard_file.init_async(0, null, (shard_file, result) => {
-            shard_file.init_finish(result);
-        });
+        this._load_domain(domain, () => {});
     },
 
     /**
@@ -451,6 +456,9 @@ const Engine = Lang.Class({
     },
 
     _shard_file_from_domain: function (domain) {
+        if (this._ekn_version_from_domain(domain) < 2)
+            return null;
+
         if (this._shard_file_cache[domain] === undefined) {
             let shard_file = new EosShard.ShardFile({
                 path: this._shard_path_from_domain(domain),
@@ -465,9 +473,8 @@ const Engine = Lang.Class({
         let task = new AsyncTask.AsyncTask(this, cancellable, callback);
         task.catch_errors(() => {
             let [domain, hash] = Utils.components_from_ekn_id(id);
-            let shard_file = this._shard_file_from_domain(domain);
-            shard_file.init_async(0, null, task.catch_callback_errors((shard_file, result) => {
-                shard_file.init_finish(result);
+            this._load_domain(domain, task.catch_callback_errors(() => {
+                let shard_file = this._shard_file_from_domain(domain);
                 let record = shard_file.find_record_by_hex_name(hash);
                 if (!record)
                     throw new Error('Could not find epak record for ' + id);
@@ -549,8 +556,13 @@ const Engine = Lang.Class({
         uri.set_port(this.port);
         uri.set_path(endpoint);
 
+        let record;
+
         let shard_file = this._shard_file_from_domain(domain);
-        let record = shard_file.find_record_by_hex_name(XAPIAN_DB_RECORD);
+        if (shard_file)
+            record = shard_file.find_record_by_hex_name(XAPIAN_DB_RECORD);
+        else
+            record = null;
 
         // If we have the record, then use it. Otherwise, fall back to the
         // old database directory.
